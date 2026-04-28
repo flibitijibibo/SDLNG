@@ -27,7 +27,6 @@ static SDL_Renderer *renderer;
 static SDL_Surface *png;
 static SDL_Texture *texture;
 
-static bool run;
 static SDL_FPoint cursor;
 
 static TTF_TextEngine *textengine;
