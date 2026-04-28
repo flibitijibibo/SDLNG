@@ -110,7 +110,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 		&window,
 		&renderer
 	)) {
-		return 0;
+		return SDL_APP_FAILURE;
 	}
 	SDL_SetRenderLogicalPresentation(
 		renderer,
