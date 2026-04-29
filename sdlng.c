@@ -264,6 +264,37 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 		}
 	}
 
+	SDL_FRect src, dst;
+	if (won)
+	{
+		src.x = 70;
+	}
+	else if (lives > 0)
+	{
+		src.x = 60;
+	}
+	else
+	{
+		src.x = 80;
+	}
+	src.y = 0;
+	src.w = 10;
+	src.h = 10;
+	dst.x = 0;
+	dst.y = 0;
+	dst.w = 50;
+	dst.h = 50;
+	SDL_RenderTexture(renderer, texture, &src, &dst);
+	if (selectorflipped)
+	{
+		src.x = 20;
+	}
+	else
+	{	src.x = 40;
+	}
+	dst.y += 50;
+	SDL_RenderTexture(renderer, texture, &src, &dst);
+
 	for (i = 0; i < WIDTH; i += 1)
 	{
 		const float ystart = columnmax - columnnumhints[i];
@@ -299,36 +330,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 		}
 	}
 
-	SDL_FRect src, dst;
-	if (won)
-	{
-		src.x = 70;
-	}
-	else if (lives > 0)
-	{
-		src.x = 60;
-	}
-	else
-	{
-		src.x = 80;
-	}
-	src.y = 0;
-	src.w = 10;
-	src.h = 10;
-	dst.x = 0;
-	dst.y = 0;
-	dst.w = 50;
-	dst.h = 50;
-	SDL_RenderTexture(renderer, texture, &src, &dst);
-	if (selectorflipped)
-	{
-		src.x = 20;
-	}
-	else
-	{	src.x = 40;
-	}
-	dst.y += 50;
-	SDL_RenderTexture(renderer, texture, &src, &dst);
 	// FIXME: The churn here is terrrible -flibit
 	TTF_Text *hint = TTF_CreateText(textengine, font, SDL_itoa(lives, textbuffer, 10), 0);
 	TTF_DrawRendererText(hint, 50, 0);
