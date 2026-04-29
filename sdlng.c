@@ -22,6 +22,9 @@ static size_t rowmax;
 static size_t rowhints[HEIGHT][WIDTH] = { 0 };
 static size_t rownumhints[HEIGHT] = { 0 };
 
+static bool won = false;
+static uint8_t lives = 3;
+
 static SDL_Window *window;
 static SDL_Renderer *renderer;
 static SDL_Surface *png;
@@ -147,6 +150,8 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 		float rowoffset = (event->button.x / 50.0f) - rowmax;
 		float columnoffset = (event->button.y / 50.0f) - columnmax;
 		if (
+			!won &&
+			lives > 0 &&
 			rowoffset > 0 && rowoffset < WIDTH &&
 			columnoffset > 0 && columnoffset < HEIGHT
 		) {
@@ -158,6 +163,29 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 			else
 			{
 				board[(size_t) rowoffset][(size_t) columnoffset].tried = true;
+				if (board[(size_t) rowoffset][(size_t) columnoffset].valid)
+				{
+					won = true;
+					for (i = 0; i < WIDTH; i += 1)
+					{
+						for (j = 0; j < HEIGHT; j += 1)
+						{
+							if (board[i][j].valid && !board[i][j].tried)
+							{
+								won = false;
+								break;
+							}
+						}
+						if (!won)
+						{
+							break;
+						}
+					}
+				}
+				else
+				{
+					lives -= 1;
+				}
 			}
 		}
 	}
@@ -197,7 +225,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 			}
 			else
 			{
-				if (SDL_PointInRectFloat(&cursor, &dst))
+				if (!won && lives > 0 && SDL_PointInRectFloat(&cursor, &dst))
 				{
 					if (board[i][j].marked)
 					{
@@ -259,6 +287,32 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 			TTF_DestroyText(hint);
 		}
 	}
+
+	SDL_FRect src, dst;
+	if (won)
+	{
+		src.x = 70;
+	}
+	else if (lives > 0)
+	{
+		src.x = 60;
+	}
+	else
+	{
+		src.x = 80;
+	}
+	src.y = 0;
+	src.w = 10;
+	src.h = 10;
+	dst.x = 0;
+	dst.y = 0;
+	dst.w = 50;
+	dst.h = 50;
+	SDL_RenderTexture(renderer, texture, &src, &dst);
+	// FIXME: The churn here is terrrible -flibit
+	TTF_Text *hint = TTF_CreateText(textengine, font, SDL_itoa(lives, textbuffer, 10), 0);
+	TTF_DrawRendererText(hint, 50, 0);
+	TTF_DestroyText(hint);
 
 	SDL_RenderPresent(renderer);
 	return SDL_APP_CONTINUE;
