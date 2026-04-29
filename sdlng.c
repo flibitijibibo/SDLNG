@@ -31,6 +31,7 @@ static SDL_Surface *png;
 static SDL_Texture *texture;
 
 static SDL_FPoint cursor;
+static bool selectorflipped = false;
 
 static TTF_TextEngine *textengine;
 static char textbuffer[3];
@@ -149,13 +150,23 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 	{
 		float rowoffset = (event->button.x / 50.0f) - rowmax;
 		float columnoffset = (event->button.y / 50.0f) - columnmax;
-		if (
+
+		if (event->button.x >= 0 && event->button.x <= 50.0f && event->button.y >= 50.0f && event->button.y <= 100.0f)
+		{
+			selectorflipped = !selectorflipped;
+		}
+		else if (
 			!won &&
 			lives > 0 &&
 			rowoffset > 0 && rowoffset < WIDTH &&
 			columnoffset > 0 && columnoffset < HEIGHT
 		) {
-			if (event->button.button != 1)
+			bool selectcheck = (event->button.button != 1);
+			if (selectorflipped)
+			{
+				selectcheck = !selectcheck;
+			}
+			if (selectcheck)
 			{
 				board[(size_t) rowoffset][(size_t) columnoffset].marked =
 					!board[(size_t) rowoffset][(size_t) columnoffset].marked;
@@ -308,6 +319,15 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 	dst.y = 0;
 	dst.w = 50;
 	dst.h = 50;
+	SDL_RenderTexture(renderer, texture, &src, &dst);
+	if (selectorflipped)
+	{
+		src.x = 20;
+	}
+	else
+	{	src.x = 40;
+	}
+	dst.y += 50;
 	SDL_RenderTexture(renderer, texture, &src, &dst);
 	// FIXME: The churn here is terrrible -flibit
 	TTF_Text *hint = TTF_CreateText(textengine, font, SDL_itoa(lives, textbuffer, 10), 0);
