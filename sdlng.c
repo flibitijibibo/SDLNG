@@ -110,7 +110,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 		"SDLNG",
 		50 * (WIDTH + rowmax),
 		50 * (HEIGHT + columnmax),
-		0,
+		SDL_WINDOW_RESIZABLE,
 		&window,
 		&renderer
 	)) {
@@ -145,13 +145,16 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 	{
 		cursor.x = event->motion.x;
 		cursor.y = event->motion.y;
+		SDL_RenderCoordinatesFromWindow(renderer, event->motion.x, event->motion.y, &cursor.x, &cursor.y);
 	}
 	else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN)
 	{
-		float rowoffset = (event->button.x / 50.0f) - rowmax;
-		float columnoffset = (event->button.y / 50.0f) - columnmax;
+		SDL_RenderCoordinatesFromWindow(renderer, event->button.x, event->button.y, &cursor.x, &cursor.y);
 
-		if (event->button.x >= 0 && event->button.x <= 50.0f && event->button.y >= 50.0f && event->button.y <= 100.0f)
+		float rowoffset = (cursor.x / 50.0f) - rowmax;
+		float columnoffset = (cursor.y / 50.0f) - columnmax;
+
+		if (cursor.x >= 0 && cursor.x <= 50.0f && cursor.y >= 50.0f && cursor.y <= 100.0f)
 		{
 			selectorflipped = !selectorflipped;
 		}
