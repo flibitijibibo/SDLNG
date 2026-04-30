@@ -1,0 +1,4 @@
+all:
+	emcc sdlng.c -o index.html -sUSE_SDL=3 -sUSE_SDL_TTF=3 --embed-file tiles.png --embed-file LiberationMono-Regular.ttf
+clean:
+	rm -f index.html index.js index.wasm
